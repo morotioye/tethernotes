@@ -1,1 +1,1 @@
-# tethernotes
+# tether
