@@ -24,21 +24,25 @@ const createWindow = () => {
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173').catch((err) => {
+      // eslint-disable-next-line no-console
       console.error('Failed to load URL:', err);
     });
     
-    // Open DevTools and dock it to the right
-    mainWindow.webContents.openDevTools({ mode: 'right' });
+    // Dev tools can be opened manually with keyboard shortcuts
+    // mainWindow.webContents.openDevTools({ mode: 'right' });
     
     mainWindow.webContents.on('dom-ready', () => {
+      // eslint-disable-next-line no-console
       console.log('DOM is ready');
     });
     
     mainWindow.webContents.on('did-start-loading', () => {
+      // eslint-disable-next-line no-console
       console.log('Started loading content');
     });
     
     mainWindow.webContents.on('did-finish-load', () => {
+      // eslint-disable-next-line no-console
       console.log('Finished loading content');
       if (mainWindow) {
         mainWindow.show();
@@ -59,6 +63,7 @@ const createWindow = () => {
 
   // Log any load errors
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    // eslint-disable-next-line no-console
     console.error('Failed to load:', errorCode, errorDescription);
   });
 };
