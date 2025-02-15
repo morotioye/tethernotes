@@ -74,8 +74,9 @@ ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false
   try {
     const note = await prisma.note.create({
       data: {
-        content
-      } as any // Temporary type assertion to fix the issue
+        content,
+        folder: null // Add folder support
+      }
     });
     if (noteInputWindow) {
       noteInputWindow.hide();
@@ -134,13 +135,20 @@ ipcMain.handle('update-note', async (_, { id, content }: { id: string; content: 
   }
 });
 
+// Add hide note input handler
+ipcMain.handle('hide-note-input', () => {
+  if (noteInputWindow) {
+    noteInputWindow.hide();
+  }
+});
+
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
     width: windowType === 'main' ? 1200 : 800,
     height: windowType === 'main' ? 800 : 400,
     backgroundColor: '#ffffff',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 12, y: 10 },
+    titleBarStyle: windowType === 'main' ? 'hiddenInset' : 'hidden',
+    trafficLightPosition: windowType === 'main' ? { x: 12, y: 10 } : undefined,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

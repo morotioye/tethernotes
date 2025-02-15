@@ -17,6 +17,7 @@ interface IElectronAPI {
   getNotes: () => Promise<Note[]>
   updateNote: (id: string, content: string) => Promise<Note>
   showMainWindow: () => Promise<void>
+  hideNoteInput: () => void
 }
 
 declare global {

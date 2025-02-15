@@ -44,16 +44,18 @@ export function NoteEditor({ note, onSave }: NoteEditorProps) {
   }
 
   return (
-    <div className="h-full p-0">
-      <textarea
-        ref={textareaRef}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="w-full h-full resize-none p-2 bg-background text-foreground focus:outline-none border-none"
-        placeholder="Type your note here... (Cmd+Enter to save)"
-        spellCheck="true"
-      />
+    <div className="h-full flex justify-center">
+      <div className="w-full max-w-3xl px-16">
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full h-full resize-none py-8 bg-background text-foreground focus:outline-none border-none"
+          placeholder="Type your note here... (Cmd+Enter to save)"
+          spellCheck="true"
+        />
+      </div>
     </div>
   )
 } 
