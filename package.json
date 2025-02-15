@@ -1,0 +1,51 @@
+{
+  "name": "tethernotes",
+  "version": "1.0.0",
+  "description": "A native desktop application",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development concurrently \"tsc -w\" \"nodemon --watch dist/electron/main.js --exec electron .\" \"node watch-files.js\"",
+    "build": "tsc && node copyFiles.js && electron-builder",
+    "watch": "tsc -w",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "check": "npm run lint:fix && npm run typecheck"
+  },
+  "build": {
+    "appId": "com.tethernotes.app",
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "dist/**/*"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "concurrently": "^8.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-reloader": "^1.2.3",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.0.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.2",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
