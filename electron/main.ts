@@ -183,8 +183,20 @@ const toggleNoteInput = () => {
 // Create window when app is ready - but don't show any window initially
 app.whenReady().then(() => {
   logger.start('Starting TetherNotes 📝');
-  // Register global shortcut
+  // Register global shortcuts
   globalShortcut.register('CommandOrControl+J', toggleNoteInput);
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isVisible()) {
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    } else {
+      mainWindow = createWindow('main');
+    }
+  });
 
   app.on('activate', () => {
     // On macOS, show or create main window when dock icon is clicked
