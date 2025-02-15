@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TetherNotes</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
+    <link rel="stylesheet" href="./public/styles.css">
+</head>
+<body>
+    <div id="app">
+        <div class="titlebar">
+            <div class="titlebar-controls">
+                <button id="close-button" class="titlebar-button close"></button>
+                <button id="minimize-button" class="titlebar-button minimize"></button>
+                <button id="maximize-button" class="titlebar-button maximize"></button>
+            </div>
+            <div class="titlebar-drag"></div>
+        </div>
+        <div class="content">
+            <h1>Welcome to TetherNotes</h1>
+        </div>
+    </div>
+    <script src="../dist/renderer/src/renderer.js"></script>
+</body>
+</html> 
