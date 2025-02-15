@@ -139,13 +139,15 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
     width: windowType === 'main' ? 1200 : 800,
     height: windowType === 'main' ? 800 : 400,
     backgroundColor: '#ffffff',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 12, y: 10 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false // Required for Prisma to work
     },
-    frame: true,
+    frame: false,
     show: false, // Don't show the window until it's ready
     alwaysOnTop: windowType === 'noteInput',
     center: true,

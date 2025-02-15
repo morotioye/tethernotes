@@ -20,6 +20,9 @@ interface NoteListProps {
 export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps) {
   return (
     <div className="h-screen w-72 border-r border-border/40 bg-sidebar flex flex-col">
+      {/* Drag Region */}
+      <div className="h-8 app-region-drag" />
+      
       {/* Search Bar */}
       <div className="p-4 border-b border-border/40">
         <div className="relative">
