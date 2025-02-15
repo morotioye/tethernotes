@@ -1,9 +1,10 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
 import path from 'path';
 import { enable } from '@electron/remote/main';
+import electronReloader from 'electron-reloader';
 
 if (process.env.NODE_ENV === 'development') {
-  require('electron-reloader')(module, {
+  electronReloader(module, {
     debug: true,
     watchRenderer: true
   });
