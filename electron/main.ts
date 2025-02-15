@@ -12,16 +12,6 @@ let mainWindow: BrowserWindow | null = null;
 // Explicitly set development mode
 const isDev = process.env.NODE_ENV === 'development';
 
-// Create a logger that only logs in development
-/* eslint-disable no-console */
-const log = {
-  info: (...args: unknown[]) => isDev && console.log(...args),
-  error: (...args: unknown[]) => isDev && console.error(...args)
-};
-/* eslint-enable no-console */
-
-log.info('Running in development mode:', isDev);
-
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
     width: windowType === 'main' ? 1200 : 600,
@@ -37,18 +27,12 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
     show: false, // Don't show the window until it's ready
   });
 
-  // Log the current directory and file paths
-  log.info('Current directory:', __dirname);
-  log.info('Preload path:', path.join(__dirname, 'preload.js'));
-
   if (isDev) {
     // In development, wait for the dev server to be ready
     const loadURL = async () => {
       try {
         await window.loadURL('http://localhost:5173');
-        log.info('Successfully loaded dev server URL');
       } catch (err) {
-        log.error('Failed to load URL:', err);
         // Retry after 1 second
         setTimeout(loadURL, 1000);
       }
@@ -57,14 +41,12 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
   } else {
     // In production, load from the dist directory
     const filePath = path.join(__dirname, '../dist/index.html');
-    log.info('Loading production file:', filePath);
     window.loadFile(filePath);
   }
     
   window.webContents.on('did-finish-load', () => {
     if (window) {
       window.show();
-      log.info('Window loaded and shown');
     }
   });
 
@@ -85,16 +67,11 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
 
 // Create window when app is ready - but don't show any window initially
 app.whenReady().then(() => {
-  log.info('App is ready');
-  
   app.on('activate', () => {
-    log.info('Activate event triggered');
     // On macOS, show or create main window when dock icon is clicked
     if (!mainWindow) {
-      log.info('Creating new main window');
       mainWindow = createWindow('main');
     } else {
-      log.info('Showing existing main window');
       mainWindow.show();
     }
   });
@@ -102,7 +79,6 @@ app.whenReady().then(() => {
 
 // Keep the app running even when all windows are closed
 app.on('window-all-closed', () => {
-  log.info('All windows closed');
   // Don't quit the app when all windows are closed
 });
 
