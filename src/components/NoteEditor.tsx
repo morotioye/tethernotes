@@ -44,7 +44,7 @@ export function NoteEditor({ note, onSave }: NoteEditorProps) {
   }
 
   return (
-    <div className="h-full p-4">
+    <div className="h-full p-0">
       <textarea
         ref={textareaRef}
         value={content}
