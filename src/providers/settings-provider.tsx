@@ -60,15 +60,15 @@ export function SettingsProvider({ children, userId }: SettingsProviderProps) {
   const updateSettingPath = async <T,>(path: string[], value: T) => {
     try {
       const newSettings = { ...settings }
-      let current: any = newSettings
+      let current: Record<string, unknown> = newSettings;
       
       // Navigate to the nested property
       for (let i = 0; i < path.length - 1; i++) {
-        current = current[path[i]]
+        current = current[path[i]] as Record<string, unknown>;
       }
       
       // Update the value
-      current[path[path.length - 1]] = value
+      current[path[path.length - 1]] = value;
       
       // Save to database
       await prisma.user.update({
@@ -76,7 +76,7 @@ export function SettingsProvider({ children, userId }: SettingsProviderProps) {
         data: { settings: JSON.stringify(newSettings) }
       })
       
-      setSettings(newSettings)
+      setSettings(newSettings as UserSettings)
     } catch (error) {
       console.error('Failed to update setting:', error)
       throw error

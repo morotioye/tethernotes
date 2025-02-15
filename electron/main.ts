@@ -1,15 +1,26 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
 import path from 'path';
-import { registerShortcuts } from './shortcuts';
+// We'll use registerShortcuts later when implementing shortcuts
+// import { registerShortcuts } from './shortcuts';
 
 // Window references
 let mainWindow: BrowserWindow | null = null;
-let noteInputWindow: BrowserWindow | null = null;
-let searchWindow: BrowserWindow | null = null;
+// We'll use these windows later when implementing their functionality
+// let noteInputWindow: BrowserWindow | null = null;
+// let searchWindow: BrowserWindow | null = null;
 
 // Explicitly set development mode
 const isDev = process.env.NODE_ENV === 'development';
-console.log('Running in development mode:', isDev);
+
+// Create a logger that only logs in development
+/* eslint-disable no-console */
+const log = {
+  info: (...args: unknown[]) => isDev && console.log(...args),
+  error: (...args: unknown[]) => isDev && console.error(...args)
+};
+/* eslint-enable no-console */
+
+log.info('Running in development mode:', isDev);
 
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
@@ -27,17 +38,17 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
   });
 
   // Log the current directory and file paths
-  console.log('Current directory:', __dirname);
-  console.log('Preload path:', path.join(__dirname, 'preload.js'));
+  log.info('Current directory:', __dirname);
+  log.info('Preload path:', path.join(__dirname, 'preload.js'));
 
   if (isDev) {
     // In development, wait for the dev server to be ready
     const loadURL = async () => {
       try {
         await window.loadURL('http://localhost:5173');
-        console.log('Successfully loaded dev server URL');
+        log.info('Successfully loaded dev server URL');
       } catch (err) {
-        console.error('Failed to load URL:', err);
+        log.error('Failed to load URL:', err);
         // Retry after 1 second
         setTimeout(loadURL, 1000);
       }
@@ -46,14 +57,14 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
   } else {
     // In production, load from the dist directory
     const filePath = path.join(__dirname, '../dist/index.html');
-    console.log('Loading production file:', filePath);
+    log.info('Loading production file:', filePath);
     window.loadFile(filePath);
   }
     
   window.webContents.on('did-finish-load', () => {
     if (window) {
       window.show();
-      console.log('Window loaded and shown');
+      log.info('Window loaded and shown');
     }
   });
 
@@ -64,16 +75,8 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
 
   // Handle window closing
   window.on('closed', () => {
-    switch (windowType) {
-      case 'main':
-        mainWindow = null;
-        break;
-      case 'noteInput':
-        noteInputWindow = null;
-        break;
-      case 'search':
-        searchWindow = null;
-        break;
+    if (windowType === 'main') {
+      mainWindow = null;
     }
   });
 
@@ -82,17 +85,16 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
 
 // Create window when app is ready - but don't show any window initially
 app.whenReady().then(() => {
-  console.log('App is ready');
-  // We'll initialize shortcuts here later
+  log.info('App is ready');
   
   app.on('activate', () => {
-    console.log('Activate event triggered');
+    log.info('Activate event triggered');
     // On macOS, show or create main window when dock icon is clicked
     if (!mainWindow) {
-      console.log('Creating new main window');
+      log.info('Creating new main window');
       mainWindow = createWindow('main');
     } else {
-      console.log('Showing existing main window');
+      log.info('Showing existing main window');
       mainWindow.show();
     }
   });
@@ -100,7 +102,7 @@ app.whenReady().then(() => {
 
 // Keep the app running even when all windows are closed
 app.on('window-all-closed', () => {
-  console.log('All windows closed');
+  log.info('All windows closed');
   // Don't quit the app when all windows are closed
 });
 
