@@ -87,9 +87,14 @@ ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false
     if (showMain) {
       if (!mainWindow || mainWindow.isDestroyed()) {
         mainWindow = createWindow('main');
+        // Wait for the window to load before sending the note
+        mainWindow.webContents.on('did-finish-load', () => {
+          mainWindow?.webContents.send('select-note', note);
+        });
       } else {
         mainWindow.show();
         mainWindow.focus();
+        mainWindow.webContents.send('select-note', note);
       }
     }
     logger.save(`Note saved: ${content.slice(0, 30)}${content.length > 30 ? '...' : ''}`);

@@ -25,11 +25,19 @@ export default function App() {
       loadNotes()
 
       // Listen for note updates
-      const cleanup = window.electron.onNotesUpdated(() => {
+      const updateCleanup = window.electron.onNotesUpdated(() => {
         loadNotes()
       })
 
-      return cleanup
+      // Listen for note selection
+      const selectCleanup = window.electron.onSelectNote((note) => {
+        setSelectedNote(note)
+      })
+
+      return () => {
+        updateCleanup()
+        selectCleanup()
+      }
     }
   }, [windowType])
 

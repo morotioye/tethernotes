@@ -24,7 +24,13 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.removeListener('notes-updated', callback)
     }
   },
-  saveNote: (content: string) => ipcRenderer.invoke('save-note', content),
+  onSelectNote: (callback: (note: any) => void) => {
+    ipcRenderer.on('select-note', (_, note) => callback(note))
+    return () => {
+      ipcRenderer.removeListener('select-note', callback)
+    }
+  },
+  saveNote: (content: string, showMain?: boolean) => ipcRenderer.invoke('save-note', content, showMain),
   getNotes: () => ipcRenderer.invoke('get-notes'),
   updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content }),
   showMainWindow: () => ipcRenderer.invoke('show-main-window')

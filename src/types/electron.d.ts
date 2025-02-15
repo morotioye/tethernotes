@@ -12,6 +12,7 @@ interface IElectronAPI {
   onShowNoteInput: (callback: () => void) => () => void
   onShowSearch: (callback: () => void) => () => void
   onNotesUpdated: (callback: () => void) => () => void
+  onSelectNote: (callback: (note: Note) => void) => () => void
   saveNote: (content: string, showMain?: boolean) => Promise<Note>
   getNotes: () => Promise<Note[]>
   updateNote: (id: string, content: string) => Promise<Note>
