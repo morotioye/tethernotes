@@ -1,42 +1,56 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
 import path from 'path';
-import { enable } from '@electron/remote/main';
-import electronReloader from 'electron-reloader';
-
-if (process.env.NODE_ENV === 'development') {
-  electronReloader(module, {
-    debug: true,
-    watchRenderer: true
-  });
-}
+import { registerShortcuts } from './shortcuts';
 
 let mainWindow: BrowserWindow | null = null;
 
-function createWindow() {
+const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    backgroundColor: '#ffffff',
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+      sandbox: false // Required for Prisma to work
     },
-    frame: false,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 10, y: 10 },
+    frame: true, // Enable frame for now for debugging
     show: false, // Don't show the window until it's ready
   });
 
-  enable(mainWindow.webContents);
+  // Set NODE_ENV to development
+  process.env.NODE_ENV = 'development';
 
-  // Load the local HTML file
-  mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:5173').catch((err) => {
+      console.error('Failed to load URL:', err);
+    });
+    
+    // Open DevTools and dock it to the right
+    mainWindow.webContents.openDevTools({ mode: 'right' });
+    
+    mainWindow.webContents.on('dom-ready', () => {
+      console.log('DOM is ready');
+    });
+    
+    mainWindow.webContents.on('did-start-loading', () => {
+      console.log('Started loading content');
+    });
+    
+    mainWindow.webContents.on('did-finish-load', () => {
+      console.log('Finished loading content');
+      if (mainWindow) {
+        mainWindow.show();
+      }
+    });
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+  }
 
-  // Show window when it's ready to prevent white flashing
-  mainWindow.once('ready-to-show', () => {
-    if (mainWindow) {
-      mainWindow.show();
-    }
-  });
+  if (mainWindow) {
+    registerShortcuts(mainWindow);
+  }
 
   // Handle window closing
   mainWindow.on('closed', () => {
@@ -47,16 +61,7 @@ function createWindow() {
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     console.error('Failed to load:', errorCode, errorDescription);
   });
-
-  // Register a global shortcut to show/hide the window
-  globalShortcut.register('CommandOrControl+Shift+Space', () => {
-    if (mainWindow?.isVisible()) {
-      mainWindow.hide();
-    } else if (mainWindow) {
-      mainWindow.show();
-    }
-  });
-}
+};
 
 // Create window when app is ready
 app.whenReady().then(() => {

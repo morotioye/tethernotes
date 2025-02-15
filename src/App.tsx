@@ -1,18 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-function App() {
-  const [note, setNote] = useState('')
-
+export default function App() {
   return (
-    <div className="h-screen p-4">
-      <textarea
-        className="w-full h-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Start typing your note..."
-      />
+    <div className="h-screen w-screen flex items-center justify-center bg-white">
+      <h1 className="text-2xl font-semibold text-black">
+        Hello World
+      </h1>
     </div>
   )
-}
-
-export default App 
+} 
