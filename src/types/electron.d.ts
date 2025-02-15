@@ -6,6 +6,7 @@ declare global {
       windowType: 'main' | 'noteInput' | 'search'
       onShowNoteInput: (callback: () => void) => () => void
       onShowSearch: (callback: () => void) => () => void
+      onNotesUpdated: (callback: () => void) => () => void
       saveNote: (content: string) => Promise<void>
       getNotes: () => Promise<Array<{
         id: string

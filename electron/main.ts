@@ -64,7 +64,8 @@ ipcMain.handle('save-note', async (_, content: string) => {
     if (noteInputWindow) {
       noteInputWindow.hide();
     }
-    if (mainWindow) {
+    // Only notify main window if it's already open
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) {
       mainWindow.webContents.send('notes-updated');
     }
     logger.save(`Note saved: ${content.slice(0, 30)}${content.length > 30 ? '...' : ''}`);

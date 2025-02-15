@@ -10,18 +10,26 @@ export default function App() {
   const [notes, setNotes] = useState<Note[]>([])
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
 
-  // Load notes on mount
-  useEffect(() => {
-    const loadNotes = async () => {
-      try {
-        const loadedNotes = await window.electron.getNotes()
-        setNotes(loadedNotes)
-      } catch (error) {
-        console.error('Failed to load notes:', error)
-      }
+  const loadNotes = async () => {
+    try {
+      const loadedNotes = await window.electron.getNotes()
+      setNotes(loadedNotes)
+    } catch (error) {
+      console.error('Failed to load notes:', error)
     }
+  }
+
+  // Load notes on mount and set up note update listener
+  useEffect(() => {
     if (windowType === 'main') {
       loadNotes()
+
+      // Listen for note updates
+      const cleanup = window.electron.onNotesUpdated(() => {
+        loadNotes()
+      })
+
+      return cleanup
     }
   }, [windowType])
 
