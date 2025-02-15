@@ -21,8 +21,8 @@ function createWindow() {
       contextIsolation: false,
     },
     frame: false,
-    transparent: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 10, y: 10 },
     show: false, // Don't show the window until it's ready
   });
 
@@ -35,10 +35,6 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {
       mainWindow.show();
-      // Open DevTools in development
-      if (process.env.NODE_ENV === 'development') {
-        mainWindow.webContents.openDevTools();
-      }
     }
   });
 
