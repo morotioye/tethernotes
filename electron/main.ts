@@ -59,8 +59,18 @@ let noteInputWindow: BrowserWindow | null = null;
 // Explicitly set development mode
 const isDev = process.env.NODE_ENV === 'development';
 
+// Handle showing main window
+ipcMain.handle('show-main-window', () => {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    mainWindow = createWindow('main');
+  } else {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+});
+
 // Handle note saving
-ipcMain.handle('save-note', async (_, content: string) => {
+ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false) => {
   try {
     const note = await prisma.note.create({
       data: {
@@ -73,6 +83,14 @@ ipcMain.handle('save-note', async (_, content: string) => {
     // Only notify main window if it's already open
     if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) {
       mainWindow.webContents.send('notes-updated');
+    }
+    if (showMain) {
+      if (!mainWindow || mainWindow.isDestroyed()) {
+        mainWindow = createWindow('main');
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
     }
     logger.save(`Note saved: ${content.slice(0, 30)}${content.length > 30 ? '...' : ''}`);
     return note;

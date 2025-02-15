@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { Note } from './NoteList'
 
 interface NoteEditorProps {
@@ -8,6 +8,13 @@ interface NoteEditorProps {
 
 export function NoteEditor({ note, onSave }: NoteEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [content, setContent] = useState('')
+
+  useEffect(() => {
+    if (note) {
+      setContent(note.content)
+    }
+  }, [note?.id, note?.content])
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -18,8 +25,7 @@ export function NoteEditor({ note, onSave }: NoteEditorProps) {
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
-      const content = textareaRef.current?.value.trim()
-      if (content && note) {
+      if (content.trim() && note) {
         try {
           await onSave(content)
         } catch (error) {
@@ -41,7 +47,8 @@ export function NoteEditor({ note, onSave }: NoteEditorProps) {
     <div className="h-full p-4">
       <textarea
         ref={textareaRef}
-        defaultValue={note.content}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
         className="w-full h-full resize-none p-2 bg-background text-foreground focus:outline-none border-none"
         placeholder="Type your note here... (Cmd+Enter to save)"

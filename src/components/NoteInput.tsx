@@ -12,15 +12,21 @@ const NoteInput = () => {
   }, [])
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Check for Cmd+Enter (Mac) or Ctrl+Enter (Windows)
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
-      if (content.trim()) {
+      const content = textareaRef.current?.value.trim()
+      if (content) {
         try {
-          await window.electron.saveNote(content)
-          setContent('') // Clear the input after successful save
+          if (e.shiftKey) {
+            // Cmd+Shift+Enter: Save and show in main window
+            await window.electron.saveNote(content, true)
+            await window.electron.showMainWindow()
+          } else {
+            // Cmd+Enter: Just save
+            await window.electron.saveNote(content)
+          }
           if (textareaRef.current) {
-            textareaRef.current.focus() // Keep focus on textarea
+            textareaRef.current.value = ''
           }
         } catch (error) {
           console.error('Failed to save note:', error)

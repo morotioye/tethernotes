@@ -26,5 +26,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   saveNote: (content: string) => ipcRenderer.invoke('save-note', content),
   getNotes: () => ipcRenderer.invoke('get-notes'),
-  updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content })
+  updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content }),
+  showMainWindow: () => ipcRenderer.invoke('show-main-window')
 }) 
