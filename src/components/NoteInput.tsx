@@ -39,7 +39,7 @@ const NoteInput = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <div className="h-[40vh]" />
+      <div className="h-[20vh]" />
       <div className="w-full max-w-3xl bg-sidebar/50 rounded-lg shadow-lg flex flex-col mx-6 border border-border/10">
         {/* Main textarea */}
         <textarea

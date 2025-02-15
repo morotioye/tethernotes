@@ -146,19 +146,21 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
   const window = new BrowserWindow({
     width: windowType === 'main' ? 1200 : 800,
     height: windowType === 'main' ? 800 : 400,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     titleBarStyle: windowType === 'main' ? 'hiddenInset' : 'hidden',
     trafficLightPosition: windowType === 'main' ? { x: 12, y: 10 } : undefined,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      sandbox: false // Required for Prisma to work
+      sandbox: false, // Required for Prisma to work
+      backgroundThrottling: false
     },
     frame: false,
     show: false, // Don't show the window until it's ready
     alwaysOnTop: windowType === 'noteInput',
     center: true,
+    paintWhenInitiallyHidden: true,
   });
 
   if (isDev) {
