@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { ThemeProvider } from './components/theme-provider'
-import { ThemeToggle } from './components/theme-toggle'
 import NoteInput from './components/NoteInput'
 import { NoteList, type Note } from './components/NoteList'
 import { NoteEditor } from './components/NoteEditor'
@@ -65,13 +64,8 @@ export default function App() {
             selectedNoteId={selectedNote?.id || null}
             onNoteSelect={setSelectedNote}
           />
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-end p-4">
-              <ThemeToggle />
-            </div>
-            <div className="flex-1">
-              <NoteEditor note={selectedNote} onSave={handleSaveNote} />
-            </div>
+          <div className="flex-1">
+            <NoteEditor note={selectedNote} onSave={handleSaveNote} />
           </div>
         </div>
       )}

@@ -51,7 +51,7 @@ export function NoteEditor({ note, onSave }: NoteEditorProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-full h-full resize-none py-8 bg-background text-foreground focus:outline-none border-none"
+          className="w-full h-full resize-none pt-32 pb-8 bg-background text-foreground focus:outline-none border-none"
           placeholder="Type your note here... (Cmd+Enter to save)"
           spellCheck="true"
         />
