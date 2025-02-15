@@ -5,8 +5,8 @@ import path from 'path';
 
 // Window references
 let mainWindow: BrowserWindow | null = null;
+let noteInputWindow: BrowserWindow | null = null;
 // We'll use these windows later when implementing their functionality
-// let noteInputWindow: BrowserWindow | null = null;
 // let searchWindow: BrowserWindow | null = null;
 
 // Explicitly set development mode
@@ -15,7 +15,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
     width: windowType === 'main' ? 1200 : 600,
-    height: windowType === 'main' ? 800 : 400,
+    height: windowType === 'main' ? 800 : 200,
     backgroundColor: '#ffffff',
     webPreferences: {
       nodeIntegration: false,
@@ -23,8 +23,10 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false // Required for Prisma to work
     },
-    frame: true, // Enable frame for now for debugging
+    frame: windowType === 'main',
     show: false, // Don't show the window until it's ready
+    alwaysOnTop: windowType === 'noteInput',
+    center: true,
   });
 
   if (isDev) {
@@ -50,23 +52,43 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
     }
   });
 
-  // For development
-  if (isDev) {
-    window.webContents.openDevTools({ mode: 'detach' });
-  }
-
   // Handle window closing
   window.on('closed', () => {
     if (windowType === 'main') {
       mainWindow = null;
+    } else if (windowType === 'noteInput') {
+      noteInputWindow = null;
     }
   });
+
+  // For note input window, hide instead of close when pressing escape
+  if (windowType === 'noteInput') {
+    window.on('blur', () => {
+      window.hide();
+    });
+  }
 
   return window;
 };
 
+const toggleNoteInput = () => {
+  if (noteInputWindow && !noteInputWindow.isDestroyed()) {
+    if (noteInputWindow.isVisible()) {
+      noteInputWindow.hide();
+    } else {
+      noteInputWindow.show();
+      noteInputWindow.focus();
+    }
+  } else {
+    noteInputWindow = createWindow('noteInput');
+  }
+};
+
 // Create window when app is ready - but don't show any window initially
 app.whenReady().then(() => {
+  // Register global shortcut
+  globalShortcut.register('CommandOrControl+J', toggleNoteInput);
+
   app.on('activate', () => {
     // On macOS, show or create main window when dock icon is clicked
     if (!mainWindow) {
