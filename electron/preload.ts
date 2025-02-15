@@ -1,9 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+// Get window type from URL parameters
+const urlParams = new URLSearchParams(window.location.search)
+const windowType = urlParams.get('windowType') || 'main'
 
 contextBridge.exposeInMainWorld('electron', {
+  windowType,
   onShowNoteInput: (callback: () => void) => {
     ipcRenderer.on('show-note-input', callback)
     return () => {
@@ -16,5 +18,7 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.removeListener('show-search', callback)
     }
   },
-  prisma: prisma
+  saveNote: (content: string) => ipcRenderer.invoke('save-note', content),
+  getNotes: () => ipcRenderer.invoke('get-notes'),
+  updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content })
 }) 

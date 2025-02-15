@@ -1,17 +1,48 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
+import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron';
 import path from 'path';
+import { PrismaClient } from '@prisma/client';
+import { Signale } from 'signale';
 // We'll use registerShortcuts later when implementing shortcuts
 // import { registerShortcuts } from './shortcuts';
+
+// Configure logger
+const logger = new Signale({
+  types: {
+    start: {
+      badge: '🚀',
+      color: 'green',
+      label: 'start',
+      logLevel: 'info'
+    },
+    save: {
+      badge: '💾',
+      color: 'blue',
+      label: 'save',
+      logLevel: 'info'
+    },
+    update: {
+      badge: '📝',
+      color: 'yellow',
+      label: 'update',
+      logLevel: 'info'
+    }
+  }
+});
 
 // Enable hot reloading in development
 if (process.env.NODE_ENV === 'development') {
   try {
     require('electron-reloader')(module, {
-      debug: true,
-      watchRenderer: false // We only want to watch main process files
+      debug: false, // Disable debug logs
+      watchRenderer: false
     });
-  } catch (_) { console.log('Error setting up electron-reloader'); }
+  } catch (_) { /* ignore */ }
 }
+
+// Initialize Prisma
+const prisma = new PrismaClient({
+  log: [] // Disable Prisma logs
+});
 
 // Window references
 let mainWindow: BrowserWindow | null = null;
@@ -21,6 +52,57 @@ let noteInputWindow: BrowserWindow | null = null;
 
 // Explicitly set development mode
 const isDev = process.env.NODE_ENV === 'development';
+
+// Handle note saving
+ipcMain.handle('save-note', async (_, content: string) => {
+  try {
+    const note = await prisma.note.create({
+      data: {
+        content
+      } as any // Temporary type assertion to fix the issue
+    });
+    if (noteInputWindow) {
+      noteInputWindow.hide();
+    }
+    if (mainWindow) {
+      mainWindow.webContents.send('notes-updated');
+    }
+    logger.save(`Note saved: ${content.slice(0, 30)}${content.length > 30 ? '...' : ''}`);
+    return note;
+  } catch (error) {
+    logger.error('Failed to save note:', error);
+    throw error;
+  }
+});
+
+// Handle getting notes
+ipcMain.handle('get-notes', async () => {
+  try {
+    const notes = await prisma.note.findMany({
+      orderBy: { updatedAt: 'desc' }
+    });
+    logger.update(`Fetched ${notes.length} notes`);
+    return notes;
+  } catch (error) {
+    logger.error('Failed to fetch notes:', error);
+    throw error;
+  }
+});
+
+// Handle updating notes
+ipcMain.handle('update-note', async (_, { id, content }: { id: string; content: string }) => {
+  try {
+    const note = await prisma.note.update({
+      where: { id },
+      data: { content }
+    });
+    logger.update(`Note updated: ${content.slice(0, 30)}${content.length > 30 ? '...' : ''}`);
+    return note;
+  } catch (error) {
+    logger.error('Failed to update note:', error);
+    throw error;
+  }
+});
 
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
@@ -43,7 +125,7 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
     // In development, wait for the dev server to be ready
     const loadURL = async () => {
       try {
-        await window.loadURL('http://localhost:5173');
+        await window.loadURL(`http://localhost:5173?windowType=${windowType}`);
       } catch (err) {
         // Retry after 1 second
         setTimeout(loadURL, 1000);
@@ -53,12 +135,15 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
   } else {
     // In production, load from the dist directory
     const filePath = path.join(__dirname, '../dist/index.html');
-    window.loadFile(filePath);
+    window.loadFile(filePath, { query: { windowType } });
   }
     
   window.webContents.on('did-finish-load', () => {
     if (window) {
       window.show();
+      if (windowType === 'main') {
+        logger.start('Main window ready 🎉');
+      }
     }
   });
 
@@ -96,6 +181,7 @@ const toggleNoteInput = () => {
 
 // Create window when app is ready - but don't show any window initially
 app.whenReady().then(() => {
+  logger.start('Starting TetherNotes 📝');
   // Register global shortcut
   globalShortcut.register('CommandOrControl+J', toggleNoteInput);
 

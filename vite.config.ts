@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,8 +11,8 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        preload: resolve(__dirname, 'electron/preload.ts'),
+        main: path.resolve(__dirname, 'index.html'),
+        preload: path.resolve(__dirname, 'electron/preload.ts'),
       },
       output: {
         entryFileNames: (chunkInfo) => {
@@ -23,11 +23,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
     port: 5173,
     strictPort: true,
+    clearScreen: false,
+    logLevel: 'error'
   },
 }); 

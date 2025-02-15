@@ -2,5 +2,6 @@
   "watch": ["electron/**/*"],
   "ext": ".ts,.js,.json",
   "ignore": ["**/*.test.ts", "**/*.spec.ts", ".git", "node_modules"],
-  "exec": "tsc -p electron/tsconfig.json && cross-env NODE_ENV=development electron ."
+  "exec": "tsc -p electron/tsconfig.json && cross-env NODE_ENV=development electron .",
+  "quiet": true
 } 
