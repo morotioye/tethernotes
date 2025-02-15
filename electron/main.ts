@@ -3,6 +3,16 @@ import path from 'path';
 // We'll use registerShortcuts later when implementing shortcuts
 // import { registerShortcuts } from './shortcuts';
 
+// Enable hot reloading in development
+if (process.env.NODE_ENV === 'development') {
+  try {
+    require('electron-reloader')(module, {
+      debug: true,
+      watchRenderer: false // We only want to watch main process files
+    });
+  } catch (_) { console.log('Error setting up electron-reloader'); }
+}
+
 // Window references
 let mainWindow: BrowserWindow | null = null;
 let noteInputWindow: BrowserWindow | null = null;
@@ -14,8 +24,8 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
-    width: windowType === 'main' ? 1200 : 600,
-    height: windowType === 'main' ? 800 : 200,
+    width: windowType === 'main' ? 1200 : 800,
+    height: windowType === 'main' ? 800 : 400,
     backgroundColor: '#ffffff',
     webPreferences: {
       nodeIntegration: false,
@@ -23,7 +33,7 @@ const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindo
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false // Required for Prisma to work
     },
-    frame: windowType === 'main',
+    frame: true,
     show: false, // Don't show the window until it's ready
     alwaysOnTop: windowType === 'noteInput',
     center: true,
