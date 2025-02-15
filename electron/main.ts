@@ -29,6 +29,12 @@ const logger = new Signale({
   }
 });
 
+// Enable secure coding for macOS
+if (process.platform === 'darwin') {
+  // @ts-ignore - This property exists but TypeScript doesn't know about it
+  app.applicationSupportsSecureRestorableState = true;
+}
+
 // Enable hot reloading in development
 if (process.env.NODE_ENV === 'development') {
   try {
