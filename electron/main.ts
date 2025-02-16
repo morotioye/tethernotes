@@ -70,12 +70,12 @@ ipcMain.handle('show-main-window', () => {
 });
 
 // Handle note saving
-ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false) => {
+ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false, space: string = 'inbox') => {
   try {
     const note = await prisma.note.create({
       data: {
         content,
-        folder: null // Add folder support
+        spaceId: space // Changed from folder to spaceId to match schema
       }
     });
     if (noteInputWindow) {
@@ -139,6 +139,36 @@ ipcMain.handle('update-note', async (_, { id, content }: { id: string; content: 
 ipcMain.handle('hide-note-input', () => {
   if (noteInputWindow) {
     noteInputWindow.hide();
+  }
+});
+
+// Handle getting spaces
+ipcMain.handle('get-spaces', async () => {
+  try {
+    const spaces = await prisma.space.findMany({
+      orderBy: { name: 'asc' }
+    });
+    return spaces;
+  } catch (error) {
+    logger.error('Failed to fetch spaces:', error);
+    throw error;
+  }
+});
+
+// Handle creating a new space
+ipcMain.handle('create-space', async (_, { name, description }: { name: string; description?: string }) => {
+  try {
+    const space = await prisma.space.create({
+      data: {
+        name,
+        description
+      }
+    });
+    logger.save(`Space created: ${name}`);
+    return space;
+  } catch (error) {
+    logger.error('Failed to create space:', error);
+    throw error;
   }
 });
 

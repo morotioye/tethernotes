@@ -20,12 +20,24 @@ model User {
   notes     Note[]
 }
 
+model Space {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String?  @default("📝") // Default emoji icon
+  color       String?  @default("#94A3B8") // Default slate color
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notes       Note[]
+}
+
 model Note {
   id        String   @id @default(uuid())
   content   String
-  folder    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
+  spaceId   String?  @default("inbox")
+  space     Space?   @relation(fields: [spaceId], references: [id])
 }

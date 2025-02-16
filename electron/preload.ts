@@ -30,9 +30,11 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.removeListener('select-note', callback)
     }
   },
-  saveNote: (content: string, showMain?: boolean) => ipcRenderer.invoke('save-note', content, showMain),
+  saveNote: (content: string, showMain?: boolean, space?: string) => ipcRenderer.invoke('save-note', content, showMain, space),
   getNotes: () => ipcRenderer.invoke('get-notes'),
   updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content }),
+  createSpace: (data: { name: string; description?: string }) => ipcRenderer.invoke('create-space', data),
+  getSpaces: () => ipcRenderer.invoke('get-spaces'),
   showMainWindow: () => ipcRenderer.invoke('show-main-window'),
   hideNoteInput: () => ipcRenderer.invoke('hide-note-input')
 }) 
