@@ -59,7 +59,7 @@ const NoteInput = () => {
             size="sm"
             className="text-xs text-muted-foreground hover:text-foreground"
           >
-            No Folder
+            inbox
           </Button>
           <Button
             variant="ghost"
