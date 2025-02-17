@@ -70,12 +70,16 @@ ipcMain.handle('show-main-window', () => {
 });
 
 // Handle note saving
-ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false, space: string = 'inbox') => {
+ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false, spaceId: string = 'inbox') => {
   try {
     const note = await prisma.note.create({
       data: {
         content,
-        spaceId: space // Changed from folder to spaceId to match schema
+        space: {
+          connect: {
+            id: spaceId
+          }
+        }
       }
     });
     if (noteInputWindow) {

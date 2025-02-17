@@ -14,7 +14,8 @@ interface Space {
 const NoteInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [content, setContent] = useState('')
-  const [currentSpace, setCurrentSpace] = useState('inbox')
+  const [currentSpaceId, setCurrentSpaceId] = useState('inbox')
+  const [currentSpaceName, setCurrentSpaceName] = useState('inbox')
   const [showSpaceMenu, setShowSpaceMenu] = useState(false)
   const [showNewSpaceDialog, setShowNewSpaceDialog] = useState(false)
   const [newSpaceName, setNewSpaceName] = useState('')
@@ -46,7 +47,7 @@ const NoteInput = () => {
     const content = textareaRef.current?.value.trim()
     if (content) {
       try {
-        await window.electron.saveNote(content, showMain, currentSpace)
+        await window.electron.saveNote(content, showMain, currentSpaceId)
         if (textareaRef.current) {
           textareaRef.current.value = ''
           setContent('')
@@ -67,10 +68,9 @@ const NoteInput = () => {
         setNewSpaceName('')
         setNewSpaceDescription('')
         setShowNewSpaceDialog(false)
-        // Fetch updated spaces list
         await fetchSpaces()
-        // Set the newly created space as current
-        setCurrentSpace(newSpace.name)
+        setCurrentSpaceId(newSpace.id)
+        setCurrentSpaceName(newSpace.name)
       } catch (error) {
         console.error('Failed to create space:', error)
       }
@@ -111,7 +111,7 @@ const NoteInput = () => {
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 onClick={() => setShowSpaceMenu(!showSpaceMenu)}
               >
-                {currentSpace}
+                {currentSpaceName}
                 <ChevronDown className="h-3 w-3" />
               </Button>
               
@@ -120,7 +120,8 @@ const NoteInput = () => {
                   <button
                     className="w-full px-3 py-1.5 text-left text-xs hover:bg-accent text-muted-foreground hover:text-foreground"
                     onClick={() => {
-                      setCurrentSpace('inbox')
+                      setCurrentSpaceId('inbox')
+                      setCurrentSpaceName('inbox')
                       setShowSpaceMenu(false)
                     }}
                   >
@@ -133,13 +134,14 @@ const NoteInput = () => {
                         key={space.id}
                         className="w-full px-3 py-1.5 text-left text-xs hover:bg-accent text-muted-foreground hover:text-foreground"
                         onClick={() => {
-                          setCurrentSpace(space.name)
+                          setCurrentSpaceId(space.id)
+                          setCurrentSpaceName(space.name)
                           setShowSpaceMenu(false)
                         }}
                       >
                         {space.name}
                       </button>
-                  ))}
+                    ))}
                   <button
                     className="w-full px-3 py-1.5 text-left text-xs hover:bg-accent text-muted-foreground hover:text-foreground flex items-center gap-1"
                     onClick={() => {
