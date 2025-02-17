@@ -114,6 +114,9 @@ ipcMain.handle('save-note', async (_, content: string, showMain: boolean = false
 ipcMain.handle('get-notes', async () => {
   try {
     const notes = await prisma.note.findMany({
+      include: {
+        space: true
+      },
       orderBy: { updatedAt: 'desc' }
     });
     logger.update(`Fetched ${notes.length} notes`);
