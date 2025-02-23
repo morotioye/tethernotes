@@ -24,6 +24,15 @@ npm run start
 ## Shortcuts
 
 - `Cmd/Ctrl + Shift + Space`: Show/Hide the app window
+- `Cmd/Ctrl + J`: Show note input window for quick note creation
+- `Cmd/Ctrl + K`: Show search window
+- `Cmd/Ctrl + Enter`: Save note (in note input/editor)
+- `Cmd/Ctrl + Shift + Enter`: Save note and show main window (in note input)
+
+Standard text editing shortcuts:
+- `Cmd/Ctrl + X`: Cut text
+- `Cmd/Ctrl + C`: Copy text
+- `Cmd/Ctrl + V`: Paste text
 
 ## Development
 
