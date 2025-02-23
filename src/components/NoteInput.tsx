@@ -45,14 +45,10 @@ const NoteInput = () => {
   }
 
   const handleSave = async (showMain: boolean = false) => {
-    const content = textareaRef.current?.value.trim()
-    if (content) {
+    if (content.trim()) {
       try {
-        await window.electron.saveNote(content, showMain, currentSpaceId)
-        if (textareaRef.current) {
-          textareaRef.current.value = ''
-          setContent('')
-        }
+        await window.electron.saveNote(content.trim(), showMain, currentSpaceId)
+        setContent('')
       } catch (error) {
         console.error('Failed to save note:', error)
       }
