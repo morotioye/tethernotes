@@ -1,6 +1,6 @@
 import React from 'react'
 import { Copy, Scissors, ClipboardPaste } from 'lucide-react'
-import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from './context-menu'
+import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from './context-menu'
 
 interface TextContextMenuProps {
   children: React.ReactNode

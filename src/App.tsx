@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ThemeProvider } from './components/theme-provider'
 import NoteInput from './components/NoteInput'
 import { NoteList, type Note } from './components/NoteList'

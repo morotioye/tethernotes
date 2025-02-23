@@ -31,16 +31,19 @@ const logger = new Signale({
 
 // Enable secure coding for macOS
 if (process.platform === 'darwin') {
-  // @ts-ignore - This property exists but TypeScript doesn't know about it
+  // @ts-expect-error - This property exists but TypeScript doesn't know about it
   app.applicationSupportsSecureRestorableState = true;
 }
 
 // Enable hot reloading in development
 if (process.env.NODE_ENV === 'development') {
   try {
-    require('electron-reloader')(module, {
-      debug: false, // Disable debug logs
-      watchRenderer: false
+    // Using dynamic import for electron-reloader since it should only be loaded in development
+    import('electron-reloader').then(reloader => {
+      reloader.default(module, {
+        debug: false, // Disable debug logs
+        watchRenderer: false
+      });
     });
   } catch (_) { /* ignore */ }
 }

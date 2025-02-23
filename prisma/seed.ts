@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client')
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
   // Create default inbox space
-  const inbox = await prisma.space.upsert({
+  await prisma.space.upsert({
     where: { name: 'inbox' },
     update: {},
     create: {
@@ -15,8 +15,6 @@ async function main() {
       color: '#94A3B8'
     }
   })
-
-  console.log({ inbox })
 }
 
 main()

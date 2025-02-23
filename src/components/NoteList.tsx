@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, useRef } from 'react'
+import { useState, useEffect, ChangeEvent, useRef } from 'react'
 import { ScrollArea } from './ui/scroll-area'
 import { formatDistanceToNow } from 'date-fns'
 import { Settings, HelpCircle, Search, Folders, Plus, Trash2, Copy, Share, Edit } from 'lucide-react'
@@ -93,9 +93,9 @@ export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps)
       await window.electron.deleteNote(note.id)
       setNoteToDelete(null)
       setShowDeleteConfirm(false)
-      // Refresh the notes list
-      const updatedNotes = await window.electron.getNotes()
-      // TODO: Update notes in parent component
+      // Refresh the notes list by calling getNotes and updating the parent component
+      const notes = await window.electron.getNotes()
+      onNoteSelect(notes[0] || null) // Select first note or null if no notes remain
     } catch (error) {
       console.error('Failed to delete note:', error)
     }
