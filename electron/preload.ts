@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import type { Note } from '../src/types/electron'
 
 // Get window type from URL parameters
@@ -26,9 +26,10 @@ contextBridge.exposeInMainWorld('electron', {
     }
   },
   onSelectNote: (callback: (note: Note) => void) => {
-    ipcRenderer.on('select-note', (_, note) => callback(note))
+    const handler = (_event: IpcRendererEvent, note: Note) => callback(note)
+    ipcRenderer.on('select-note', handler)
     return () => {
-      ipcRenderer.removeListener('select-note', callback)
+      ipcRenderer.removeListener('select-note', handler)
     }
   },
   saveNote: (content: string, showMain?: boolean, space?: string) => ipcRenderer.invoke('save-note', content, showMain, space),
