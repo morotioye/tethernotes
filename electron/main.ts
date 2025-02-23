@@ -179,6 +179,20 @@ ipcMain.handle('create-space', async (_, { name, description }: { name: string; 
   }
 });
 
+// Handle note deletion
+ipcMain.handle('delete-note', async (_, noteId: string) => {
+  try {
+    const note = await prisma.note.delete({
+      where: { id: noteId }
+    });
+    logger.update(`Note deleted: ${note.id}`);
+    return note;
+  } catch (error) {
+    logger.error('Failed to delete note:', error);
+    throw error;
+  }
+});
+
 const createWindow = (windowType: 'main' | 'noteInput' | 'search'): BrowserWindow => {
   const window = new BrowserWindow({
     width: windowType === 'main' ? 1200 : 800,

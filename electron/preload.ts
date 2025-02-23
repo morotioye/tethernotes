@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('electron', {
   saveNote: (content: string, showMain?: boolean, space?: string) => ipcRenderer.invoke('save-note', content, showMain, space),
   getNotes: () => ipcRenderer.invoke('get-notes'),
   updateNote: (id: string, content: string) => ipcRenderer.invoke('update-note', { id, content }),
+  deleteNote: (id: string) => ipcRenderer.invoke('delete-note', id),
   createSpace: (data: { name: string; description?: string }) => ipcRenderer.invoke('create-space', data),
   getSpaces: () => ipcRenderer.invoke('get-spaces'),
   showMainWindow: () => ipcRenderer.invoke('show-main-window'),

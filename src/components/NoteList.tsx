@@ -1,11 +1,13 @@
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent, useRef } from 'react'
 import { ScrollArea } from './ui/scroll-area'
 import { formatDistanceToNow } from 'date-fns'
-import { Settings, HelpCircle, Search, ChevronUp, ChevronDown, Plus } from 'lucide-react'
+import { Settings, HelpCircle, Search, Folders, Plus, Trash2, Copy, Share, Edit } from 'lucide-react'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from './ui/context-menu'
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog'
 
 export type Note = {
   id: string
@@ -29,15 +31,30 @@ interface NoteListProps {
 
 export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps) {
   const [showSpaceMenu, setShowSpaceMenu] = useState(false)
+  const spaceMenuRef = useRef<HTMLDivElement>(null)
   const [currentSpaceId, setCurrentSpaceId] = useState('inbox')
   const [currentSpaceName, setCurrentSpaceName] = useState('inbox')
   const [spaces, setSpaces] = useState<Space[]>([])
   const [showNewSpaceDialog, setShowNewSpaceDialog] = useState(false)
   const [newSpaceName, setNewSpaceName] = useState('')
   const [newSpaceDescription, setNewSpaceDescription] = useState('')
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [dontAskAgain, setDontAskAgain] = useState(false)
 
   useEffect(() => {
     fetchSpaces()
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (spaceMenuRef.current && !spaceMenuRef.current.contains(event.target as Node)) {
+        setShowSpaceMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const fetchSpaces = async () => {
@@ -71,6 +88,28 @@ export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps)
     }
   }
 
+  const handleDeleteNote = async (note: Note) => {
+    try {
+      await window.electron.deleteNote(note.id)
+      setNoteToDelete(null)
+      setShowDeleteConfirm(false)
+      // Refresh the notes list
+      const updatedNotes = await window.electron.getNotes()
+      // TODO: Update notes in parent component
+    } catch (error) {
+      console.error('Failed to delete note:', error)
+    }
+  }
+
+  const handleNoteContextMenu = (note: Note) => {
+    if (dontAskAgain) {
+      handleDeleteNote(note)
+    } else {
+      setNoteToDelete(note)
+      setShowDeleteConfirm(true)
+    }
+  }
+
   return (
     <>
       <div className="h-screen w-72 border-r border-border/40 bg-sidebar flex flex-col">
@@ -98,24 +137,49 @@ export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps)
               const timeAgo = formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })
               
               return (
-                <button
-                  key={note.id}
-                  onClick={() => onNoteSelect(note)}
-                  className={`w-full text-left p-3 rounded-lg transition-all duration-200 group
-                    ${selectedNoteId === note.id
-                      ? 'bg-accent/80 text-accent-foreground shadow-sm'
-                      : 'hover:bg-accent/40 text-foreground/80 hover:text-foreground'
-                    }`}
-                >
-                  <div className="font-medium text-sm line-clamp-2">{preview}</div>
-                  <div className={`text-xs mt-1 transition-colors duration-200 
-                    ${selectedNoteId === note.id
-                      ? 'text-accent-foreground/80'
-                      : 'text-muted-foreground group-hover:text-foreground/60'
-                    }`}>
-                    {timeAgo}
-                  </div>
-                </button>
+                <ContextMenu key={note.id}>
+                  <ContextMenuTrigger asChild>
+                    <button
+                      onClick={() => onNoteSelect(note)}
+                      className={`w-full text-left p-3 rounded-lg transition-all duration-200 group
+                        ${selectedNoteId === note.id
+                          ? 'bg-accent/80 text-accent-foreground shadow-sm'
+                          : 'hover:bg-accent/40 text-foreground/80 hover:text-foreground'
+                        }`}
+                    >
+                      <div className="font-medium text-sm line-clamp-2">{preview}</div>
+                      <div className={`text-xs mt-1 transition-colors duration-200 
+                        ${selectedNoteId === note.id
+                          ? 'text-accent-foreground/80'
+                          : 'text-muted-foreground group-hover:text-foreground/60'
+                        }`}>
+                        {timeAgo}
+                      </div>
+                    </button>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem onSelect={() => onNoteSelect(note)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </ContextMenuItem>
+                    <ContextMenuItem>
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy
+                    </ContextMenuItem>
+                    <ContextMenuItem>
+                      <Share className="mr-2 h-4 w-4" />
+                      Share
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      onSelect={() => handleNoteContextMenu(note)}
+                      className="text-red-600 focus:text-red-600 focus:bg-red-100 dark:focus:bg-red-900"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               )
             })}
           </div>
@@ -123,17 +187,14 @@ export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps)
 
         {/* Footer */}
         <div className="p-4 border-t border-border/40 flex items-center justify-between">
-          <div className="relative">
+          <div className="relative" ref={spaceMenuRef}>
             <Button
               variant="ghost"
               size="sm"
               className="h-8 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
               onClick={() => setShowSpaceMenu(!showSpaceMenu)}
             >
-              <div className="flex flex-col -space-y-1">
-                <ChevronUp className="h-4 w-4" />
-                <ChevronDown className="h-4 w-4" />
-              </div>
+              <Folders className="h-4 w-4" />
               {currentSpaceName}
             </Button>
 
@@ -229,6 +290,42 @@ export function NoteList({ notes, selectedNoteId, onNoteSelect }: NoteListProps)
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this note?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={dontAskAgain}
+                onChange={(e) => setDontAskAgain(e.target.checked)}
+                className="rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-muted-foreground">Don't ask me again</span>
+            </label>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowDeleteConfirm(false)
+              setNoteToDelete(null)
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => noteToDelete && handleDeleteNote(noteToDelete)}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 } 

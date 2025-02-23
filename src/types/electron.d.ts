@@ -24,6 +24,7 @@ interface ElectronAPI {
   saveNote: (content: string, showMain?: boolean, space?: string) => Promise<any>
   getNotes: () => Promise<any[]>
   updateNote: (id: string, content: string) => Promise<any>
+  deleteNote: (id: string) => Promise<any>
   createSpace: (data: { name: string; description?: string }) => Promise<Space>
   getSpaces: () => Promise<Space[]>
   showMainWindow: () => Promise<void>

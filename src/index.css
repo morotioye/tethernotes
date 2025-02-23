@@ -37,6 +37,17 @@
     --radius: 0.5rem;
   }
 
+  /* Text selection styles */
+  ::selection {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  ::-moz-selection {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
   .dark {
     --background: 240 10% 8%;
     --foreground: 0 0% 98%;
